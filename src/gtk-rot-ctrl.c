@@ -660,12 +660,14 @@ static GtkWidget *create_az_widgets(GtkRotCtrl * ctrl)
     g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), label, 0, 1, 1, 1);
 
-    ctrl->AzRead = gtk_label_new(" --- ");
+    // Set the initial azimuth value to "000.00"
+    ctrl->AzRead = gtk_label_new("000.00");
     g_object_set(ctrl->AzRead, "xalign", 0.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), ctrl->AzRead, 1, 1, 1, 1);
 
     return frame;
 }
+
 
 /*
  * Create elevation control widgets.
@@ -695,7 +697,8 @@ static GtkWidget *create_el_widgets(GtkRotCtrl * ctrl)
     g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), label, 0, 1, 1, 1);
 
-    ctrl->ElRead = gtk_label_new(" --- ");
+    // Set the initial elevation value to "000.00"
+    ctrl->ElRead = gtk_label_new("000.00");
     g_object_set(ctrl->ElRead, "xalign", 0.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), ctrl->ElRead, 1, 1, 1, 1);
 
@@ -1144,7 +1147,7 @@ static void rot_monitor_cb(GtkCheckButton * button, gpointer data)
  * This function is called when the user toggles the "Engage" button.
  */
 static void rot_locked_cb(GtkToggleButton * button, gpointer data)
-{
+{engage
     GtkRotCtrl     *ctrl = GTK_ROT_CTRL(data);
     gchar          *buff;
     gchar           buffback[128];
@@ -1304,6 +1307,15 @@ static GtkWidget *create_target_widgets(GtkRotCtrl * ctrl)
     g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), ctrl->AzSat, 1, 1, 1, 1);
 
+    /* tracking button */
+    ctrl->track = gtk_toggle_button_new_with_label(_("Track"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl->track), TRUE);  /* add this line */
+    gtk_widget_set_tooltip_text(ctrl->track,
+                            _("Track the satellite when it is within range"));
+    gtk_grid_attach(GTK_GRID(table), ctrl->track, 2, 0, 1, 1);
+    g_signal_connect(ctrl->track, "toggled", G_CALLBACK(track_toggle_cb),
+                 ctrl);
+
     /* Elevation */
     label = gtk_label_new(_("El:"));
     g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
@@ -1408,8 +1420,12 @@ static GtkWidget *create_conf_widgets(GtkRotCtrl * ctrl)
     gtk_widget_set_tooltip_text(ctrl->LockBut,
                                 _("Engage the selected rotor device"));
     g_signal_connect(ctrl->LockBut, "toggled", G_CALLBACK(rot_locked_cb),
-                     ctrl);
+                    ctrl);
     gtk_grid_attach(GTK_GRID(table), ctrl->LockBut, 2, 0, 1, 1);
+
+    // Set the Engage button as actively clicked
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl->LockBut), TRUE);
+
 
     /* Monitor checkbox */
     ctrl->MonitorCheckBox = gtk_check_button_new_with_label(_("Monitor"));
@@ -1544,11 +1560,11 @@ static void gtk_rot_ctrl_init(GtkRotCtrl * ctrl,
     ctrl->qth = NULL;
     ctrl->plot = NULL;
 
-    ctrl->tracking = FALSE;
-    ctrl->engaged = FALSE;
+    ctrl->tracking = TRUE;
+    ctrl->engaged = TRUE;
     ctrl->delay = 1000;
     ctrl->timerid = 0;
-    ctrl->threshold = 5.0;
+    ctrl->threshold = 1.0;
     ctrl->errcnt = 0;
 
     g_mutex_init(&ctrl->client.mutex);
