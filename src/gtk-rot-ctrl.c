@@ -528,7 +528,7 @@ void gtk_rot_ctrl_update(GtkRotCtrl * ctrl, gdouble t)
 
         update_count_down(ctrl, t);
 
-        /*if the current pass is too far away */
+        /* if the current pass is too far away */
         if ((ctrl->pass != NULL))
             if (qth_small_dist(ctrl->qth, ctrl->pass->qth_comp) > 1.0)
             {
@@ -635,14 +635,14 @@ void gtk_rot_ctrl_select_sat(GtkRotCtrl * ctrl, gint catnum)
 /*
  * Create azimuth control widgets.
  * 
- * This function creates and initialises the widgets for controlling the
- * azimuth of the the rotator.
+ * This function creates and initializes the widgets for controlling the
+ * azimuth of the rotator.
  */
 static GtkWidget *create_az_widgets(GtkRotCtrl * ctrl)
 {
-    GtkWidget      *frame;
-    GtkWidget      *table;
-    GtkWidget      *label;
+    GtkWidget *frame;
+    GtkWidget *table;
+    GtkWidget *label;
 
     frame = gtk_frame_new(_("Azimuth"));
 
@@ -652,7 +652,7 @@ static GtkWidget *create_az_widgets(GtkRotCtrl * ctrl)
     gtk_grid_set_row_spacing(GTK_GRID(table), 5);
     gtk_container_add(GTK_CONTAINER(frame), table);
 
-    ctrl->AzSet = gtk_rot_knob_new(0.0, 360.0, 180.0);
+    ctrl->AzSet = gtk_rot_knob_new(0.0, 360.0, 0.0); // Set the initial azimuth value to 0.0
     gtk_grid_attach(GTK_GRID(table), ctrl->AzSet, 0, 0, 3, 1);
 
     label = gtk_label_new(NULL);
@@ -660,26 +660,24 @@ static GtkWidget *create_az_widgets(GtkRotCtrl * ctrl)
     g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), label, 0, 1, 1, 1);
 
-    // Set the initial azimuth value to "000.00"
-    ctrl->AzRead = gtk_label_new("000.00");
+    ctrl->AzRead = gtk_label_new("000.00"); // Set the initial azimuth readout to "000.00"
     g_object_set(ctrl->AzRead, "xalign", 0.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), ctrl->AzRead, 1, 1, 1, 1);
 
     return frame;
 }
 
-
 /*
  * Create elevation control widgets.
  * 
- * This function creates and initialises the widgets for controlling the
- * elevation of the the rotator.
+ * This function creates and initializes the widgets for controlling the
+ * elevation of the rotator.
  */
 static GtkWidget *create_el_widgets(GtkRotCtrl * ctrl)
 {
-    GtkWidget      *frame;
-    GtkWidget      *table;
-    GtkWidget      *label;
+    GtkWidget *frame;
+    GtkWidget *table;
+    GtkWidget *label;
 
     frame = gtk_frame_new(_("Elevation"));
 
@@ -689,16 +687,14 @@ static GtkWidget *create_el_widgets(GtkRotCtrl * ctrl)
     gtk_grid_set_row_spacing(GTK_GRID(table), 5);
     gtk_container_add(GTK_CONTAINER(frame), table);
 
-    ctrl->ElSet = gtk_rot_knob_new(0.0, 90.0, 45.0);
+    ctrl->ElSet = gtk_rot_knob_new(0.0, 90.0, .0);
     gtk_grid_attach(GTK_GRID(table), ctrl->ElSet, 0, 0, 3, 1);
 
-    label = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(label), _("Read: "));
+    label = gtk_label_new(_("Read:"));
     g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), label, 0, 1, 1, 1);
 
-    // Set the initial elevation value to "000.00"
-    ctrl->ElRead = gtk_label_new("000.00");
+    ctrl->ElRead = gtk_label_new("000.00"); // Set the initial elevation readout to "000.00"
     g_object_set(ctrl->ElRead, "xalign", 0.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), ctrl->ElRead, 1, 1, 1, 1);
 
@@ -713,8 +709,8 @@ static GtkWidget *create_el_widgets(GtkRotCtrl * ctrl)
  */
 static void track_toggle_cb(GtkToggleButton * button, gpointer data)
 {
-    GtkRotCtrl     *ctrl = GTK_ROT_CTRL(data);
-    gboolean        locked;
+    GtkRotCtrl *ctrl = GTK_ROT_CTRL(data);
+    gboolean locked;
 
     locked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctrl->LockBut));
     ctrl->tracking = gtk_toggle_button_get_active(button);
@@ -723,6 +719,7 @@ static void track_toggle_cb(GtkToggleButton * button, gpointer data)
     gtk_widget_set_sensitive(ctrl->AzSet, !ctrl->tracking);
     gtk_widget_set_sensitive(ctrl->ElSet, !ctrl->tracking);
 }
+
 
 /**
  * Rotator controller timeout function
@@ -1147,7 +1144,7 @@ static void rot_monitor_cb(GtkCheckButton * button, gpointer data)
  * This function is called when the user toggles the "Engage" button.
  */
 static void rot_locked_cb(GtkToggleButton * button, gpointer data)
-{engage
+{
     GtkRotCtrl     *ctrl = GTK_ROT_CTRL(data);
     gchar          *buff;
     gchar           buffback[128];
@@ -1292,38 +1289,33 @@ static GtkWidget *create_target_widgets(GtkRotCtrl * ctrl)
     /* tracking button */
     ctrl->track = gtk_toggle_button_new_with_label(_("Track"));
     gtk_widget_set_tooltip_text(ctrl->track,
-                                _
-                                ("Track the satellite when it is within range"));
+                                _("Track the satellite when it is within range"));
     gtk_grid_attach(GTK_GRID(table), ctrl->track, 2, 0, 1, 1);
     g_signal_connect(ctrl->track, "toggled", G_CALLBACK(track_toggle_cb),
-                     ctrl);
+                    ctrl);
+
+    // Programmatically click the "Track" button
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl->track), TRUE);
+
 
     /* Azimuth */
     label = gtk_label_new(_("Az:"));
     g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), label, 0, 1, 1, 1);
 
-    ctrl->AzSat = gtk_label_new(buff);
-    g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
+    ctrl->AzSat = gtk_label_new("000.00"); // Set the initial azimuth value to "000.00"
+    g_object_set(ctrl->AzSat, "xalign", 1.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), ctrl->AzSat, 1, 1, 1, 1);
-
-    /* tracking button */
-    ctrl->track = gtk_toggle_button_new_with_label(_("Track"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl->track), TRUE);  /* add this line */
-    gtk_widget_set_tooltip_text(ctrl->track,
-                            _("Track the satellite when it is within range"));
-    gtk_grid_attach(GTK_GRID(table), ctrl->track, 2, 0, 1, 1);
-    g_signal_connect(ctrl->track, "toggled", G_CALLBACK(track_toggle_cb),
-                 ctrl);
 
     /* Elevation */
     label = gtk_label_new(_("El:"));
     g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), label, 0, 2, 1, 1);
 
-    ctrl->ElSat = gtk_label_new(buff);
-    g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
+    ctrl->ElSat = gtk_label_new("000.00"); // Set the initial elevation value to "000.00"
+    g_object_set(ctrl->ElSat, "xalign", 1.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), ctrl->ElSat, 1, 2, 1, 1);
+
 
     /* count down */
     label = gtk_label_new(_("\316\224T:"));
@@ -1420,12 +1412,12 @@ static GtkWidget *create_conf_widgets(GtkRotCtrl * ctrl)
     gtk_widget_set_tooltip_text(ctrl->LockBut,
                                 _("Engage the selected rotor device"));
     g_signal_connect(ctrl->LockBut, "toggled", G_CALLBACK(rot_locked_cb),
-                    ctrl);
-    gtk_grid_attach(GTK_GRID(table), ctrl->LockBut, 2, 0, 1, 1);
+                     ctrl);
 
-    // Set the Engage button as actively clicked
+    /* Add this line to set the Engage button to the engaged state */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl->LockBut), TRUE);
 
+    gtk_grid_attach(GTK_GRID(table), ctrl->LockBut, 2, 0, 1, 1);
 
     /* Monitor checkbox */
     ctrl->MonitorCheckBox = gtk_check_button_new_with_label(_("Monitor"));
@@ -1459,7 +1451,7 @@ static GtkWidget *create_conf_widgets(GtkRotCtrl * ctrl)
     g_object_set(label, "xalign", 1.0f, "yalign", 0.5f, NULL);
     gtk_grid_attach(GTK_GRID(table), label, 0, 3, 1, 1);
 
-    ctrl->thld_spin = gtk_spin_button_new_with_range(0.01, 50.0, 0.01);
+    ctrl->thld_spin = gtk_spin_button_new_with_range(1.00, 50.0, 1.00);
     gtk_spin_button_set_digits(GTK_SPIN_BUTTON(ctrl->thld_spin), 2);
     gtk_widget_set_tooltip_text(ctrl->thld_spin,
                                 _("This parameter sets the threshold that triggers "
@@ -1564,7 +1556,7 @@ static void gtk_rot_ctrl_init(GtkRotCtrl * ctrl,
     ctrl->engaged = TRUE;
     ctrl->delay = 1000;
     ctrl->timerid = 0;
-    ctrl->threshold = 1.0;
+    ctrl->threshold = 4.00;
     ctrl->errcnt = 0;
 
     g_mutex_init(&ctrl->client.mutex);

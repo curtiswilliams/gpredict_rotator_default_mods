@@ -1,3 +1,4 @@
+
 /*
     Gpredict: Real-time satellite tracking and orbit prediction program
 
@@ -907,7 +908,7 @@ static gint read_fresh_tle(const gchar * dir, const gchar * fnam,
             case 1:
                 strncpy(tle_working[0], tle_working[1], 80);
                 strncpy(tle_working[1], tle_working[2], 80);
-                strncpy(tle_working[2], linetmp, 80);
+                snprintf(tle_working[2], sizeof(tle_working[2]), "%s", linetmp);
                 tle_working[2][79] = 0;         // make coverity happy
                 break;
             default:
@@ -965,10 +966,11 @@ static gint read_fresh_tle(const gchar * dir, const gchar * fnam,
                 /* put in a dummy name of form yyyy-nnaa base on international id */
                 /* this special form will be overwritten if a three line tle ever has another name */
 
-                strncpy(idstr, &tle_working[0][11], 6);
+                snprintf(idstr, sizeof(idstr), "%.6s", &tle_working[0][11]);
                 g_strstrip(idstr);
-                strncpy(idyearstr, &tle_working[0][9], 2);
+                snprintf(idyearstr, sizeof(idyearstr), "%.2s", &tle_working[0][9]);
                 idstr[6] = '\0';
+                
                 idyearstr[2] = '\0';
                 idyear = g_ascii_strtod(idyearstr, NULL);
 

@@ -87,13 +87,13 @@ static void     InitWinSock2(void);
 static void     CloseWinSock2(void);
 #endif
 
+#include "tle-update.h" // for update_tle_from_network()
 
 int main(int argc, char *argv[])
 {
     GError         *err = NULL;
     GOptionContext *context;
     guint           error = 0;
-
 
 #ifdef ENABLE_NLS
     bindtextdomain(PACKAGE, PACKAGE_LOCALE_DIR);
@@ -139,6 +139,9 @@ int main(int argc, char *argv[])
     /* create application */
     gpredict_app_create();
     gtk_widget_show_all(app);
+
+    // Trigger TLE update from network
+    tle_update_from_network(FALSE, NULL, NULL, NULL);
 
     //sat_debugger_run ();
 
